@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COVAPROSIN — Factores de Ajuste Bravo Armejo</title>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; background: #f0f2f5; }
+
+  /* ── Cards ── */
+  .card { border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.12); margin-bottom: 16px; }
+  .card-hdr { padding: 10px 16px; }
+  .card-hdr h4 { margin: 0; color: #fff; letter-spacing: .5px; }
+  .card-body { padding: 14px 16px; background: #fff; }
+
+  /* ── Form fields ── */
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: .78em; font-weight: bold; color: #555; margin-bottom: 3px; text-transform: uppercase; letter-spacing: .3px; }
+  .field input, .field select {
+    width: 100%; padding: 8px 10px;
+    border: 1px solid #ccc; border-radius: 5px;
+    font-size: .95em; background: #fafafa;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .field input:focus, .field select:focus {
+    border-color: #1565c0; outline: none;
+    box-shadow: 0 0 0 3px rgba(21,101,192,.15);
+    background: #fff;
+  }
+  hr.div { border: none; border-top: 1px solid #e8e8e8; margin: 12px 0; }
+
+  /* ── Result boxes ── */
+  .rbox { border-radius: 6px; padding: 10px 12px; margin: 8px 0; }
+  .rbox-amber  { background: #fff8e1; border-left: 4px solid #ffa000; }
+  .rbox-blue   { background: #e3f2fd; border-left: 4px solid #1976d2; }
+  .rbox-green  { background: #e8f5e9; border-left: 4px solid #388e3c; }
+  .rbox-orange { background: #fff3e0; border-left: 4px solid #e64a19; }
+  .calc-lbl { color: #666; font-size: .88em; }
+  .calc-val { font-weight: bold; color: #1565c0; font-size: .95em; }
+  .tc-big { font-size: 1.6em; font-weight: bold; color: #1565c0; }
+
+  /* ── Pills ── */
+  .ba-pill { border-radius: 5px; padding: 8px 20px; cursor: pointer; font-size: .9em; border: 1px solid #ccc; background: #fff; color: #333; transition: all .2s; }
+  .ba-pill:hover { background: #e3f2fd; }
+  .ba-pill.ba-active { background: #1565c0 !important; color: #fff !important; border-color: #1565c0 !important; font-weight: bold; }
+  .ba-panel { display: none; }
+  .ba-panel.ba-active { display: block; }
+
+  /* ── Factor chips ── */
+  .factor-chips-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0 12px; }
+  .factor-chip { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px 14px; text-align: center; min-width: 80px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  .fc-lbl { font-size: .72em; color: #888; text-transform: uppercase; margin-bottom: 2px; }
+  .fc-val { font-size: 1.05em; font-weight: bold; color: #1565c0; }
+
+  /* ── Ross-Heidecke matrix ── */
+  .ba-matrix { border-collapse: collapse; width: 100%; font-size: .8em; min-width: 700px; }
+  .ba-matrix th { background: #37474f; color: #fff; padding: 5px 8px; text-align: center; }
+  .ba-matrix td { padding: 5px 8px; border: 1px solid #e0e0e0; text-align: center; }
+  .ba-estado-lbl { text-align: left !important; font-weight: bold; background: #fafafa !important; min-width: 110px; }
+  .ba-matrix th.ba-col-hl { background: #fff8e1 !important; color: #333; }
+  .ba-matrix tr.ba-row-hl td { background: #e3f2fd !important; }
+  .ba-matrix td.ba-cell-hl { background: #1565c0 !important; color: #000 !important; font-weight: bold; }
+  .ba-matrix td.ba-col-adj { background: #e8f5e9 !important; }
+
+  /* ── Mini reference tables ── */
+  .ba-ref-table { border-collapse: collapse; width: 100%; font-size: .82em; }
+  .ba-ref-table th { background: #546e7a; color: #fff; padding: 4px 8px; }
+  .ba-ref-table td { padding: 4px 8px; border: 1px solid #eee; text-align: center; }
+
+  /* ── Total card ── */
+  .ba-total-card { border-radius: 10px; padding: 20px; text-align: center; margin-top: 12px; }
+  .ba-total-lbl { font-size: .78em; color: #888; text-transform: uppercase; letter-spacing: .5px; }
+  .ba-total-val { font-size: 2.8em; font-weight: bold; margin: 4px 0; }
+  .ba-total-sub { font-size: .8em; color: #aaa; }
+
+  @media print {
+    body { background: #fff; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div style="background: linear-gradient(135deg, #002147 0%, #004080 100%); padding: 18px 24px;">
+  <div style="max-width: 960px; margin: 0 auto;">
+    <div style="color: #90caf9; font-size: .8em; letter-spacing: 2px; text-transform: uppercase;">COVAPROSIN</div>
+    <h2 style="margin: 2px 0; color: #fff; font-size: 1.35em;">FACTORES DE AJUSTE</h2>
+    <div style="color: #90caf9; font-size: .82em;">Construcciones · Terrenos Urbanos · Agropecuarios</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div style="max-width: 960px; margin: 0 auto; padding: 16px 12px 40px;">
+
+  <!-- Pills -->
+  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+    <button class="ba-pill ba-active" id="pill-baCons" onclick="abrirBAPanel(event,'baCons')">🏗 Construcciones</button>
+    <button class="ba-pill" id="pill-baTerr" onclick="abrirBAPanel(event,'baTerr')">🌍 Terrenos Urbanos</button>
+    <button class="ba-pill" id="pill-baAgro" onclick="abrirBAPanel(event,'baAgro')">🌾 Agropecuarios</button>
+  </div>
+
+  <!-- ════ CONSTRUCCIONES ════ -->
+  <div id="baCons" class="ba-panel ba-active">
+    <div class="card">
+      <div class="card-hdr" style="background: #1565c0;">
+        <h4>DEPRECIACIÓN POR EDAD Y ESTADO — CONSTRUCCIONES · Ross-Heidecke</h4>
+      </div>
+      <div class="card-body">
+        <div class="w3-row-padding">
+          <div class="w3-third">
+            <div class="field">
+              <label>Tipo de Construcción</label>
+              <select id="ba_tipo" onchange="calcularBACons()">
+                <option>RESIDENCIAL PLUS</option>
+                <option>RESIDENCIAL</option>
+                <option selected>MEDIO</option>
+                <option>ECONÓMICO</option>
+                <option>INTERÉS SOCIAL</option>
+                <option>COMERCIAL</option>
+                <option>INDUSTRIAL</option>
+                <option>BODEGA</option>
+                <option>OFICINA</option>
+              </select>
+            </div>
+          </div>
+          <div class="w3-third">
+            <div class="field">
+              <label>Edad de la Construcción (años)</label>
+              <input type="number" id="ba_edad" placeholder="20" min="0" oninput="calcularBACons()">
+            </div>
+          </div>
+          <div class="w3-third">
+            <div class="field">
+              <label>Estado de Conservación</label>
+              <select id="ba_edocons" onchange="calcularBACons()">
+                <option>ÓPTIMO</option>
+                <option selected>MUY BUENO</option>
+                <option>BUENO</option>
+                <option>REGULAR</option>
+                <option>MALO</option>
+                <option>MUY MALO</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="w3-row-padding" style="margin-top: 4px;">
+          <div class="w3-quarter">
+            <div class="rbox rbox-blue">
+              <div class="calc-lbl">Vida Útil</div>
+              <div class="calc-val" id="ba_vida_util">-- años</div>
+            </div>
+          </div>
+          <div class="w3-quarter">
+            <div class="rbox rbox-amber">
+              <div class="calc-lbl">% VUC consumido</div>
+              <div class="calc-val" id="ba_pct_vuc">--%</div>
+            </div>
+          </div>
+          <div class="w3-quarter">
+            <div class="rbox rbox-green">
+              <div class="calc-lbl">Factor de Conserv.</div>
+              <div class="calc-val" id="ba_factor_cons">--</div>
+            </div>
+          </div>
+          <div class="w3-quarter">
+            <div class="rbox rbox-orange">
+              <div class="calc-lbl">Depreciación</div>
+              <div class="calc-val" id="ba_depr_cons">--%</div>
+            </div>
+          </div>
+        </div>
+        <hr class="div">
+        <div style="overflow-x: auto;">
+          <div id="ba_matrix_container"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ TERRENOS ════ -->
+  <div id="baTerr" class="ba-panel">
+    <div class="card">
+      <div class="card-hdr" style="background: #00695c;">
+        <h4>AJUSTE POR FACTORES — TERRENOS URBANOS</h4>
+      </div>
+      <div class="card-body">
+        <div class="w3-row-padding">
+          <div class="w3-half">
+            <div class="field">
+              <label>Factor de Zona (Fz)</label>
+              <select id="ba_tz_zona" onchange="calcularBATerrenos()">
+                <option value="1.20">1.20 — Zona muy solicitada / prime</option>
+                <option value="1.15">1.15 — Zona muy buena</option>
+                <option value="1.10">1.10 — Zona buena</option>
+                <option value="1.05">1.05 — Zona regular buena</option>
+                <option value="1.00" selected>1.00 — Zona media / comparable</option>
+                <option value="0.95">0.95 — Zona regular deficiente</option>
+                <option value="0.90">0.90 — Zona deficiente</option>
+                <option value="0.85">0.85 — Zona mala</option>
+                <option value="0.80">0.80 — Zona muy mala</option>
+              </select>
+            </div>
+          </div>
+          <div class="w3-half">
+            <div class="field">
+              <label>Factor de Forma (Ff)</label>
+              <select id="ba_tz_forma" onchange="calcularBATerrenos()">
+                <option value="1.05">1.05 — Regular / Rectangular</option>
+                <option value="1.00" selected>1.00 — Irregular aceptable</option>
+                <option value="0.95">0.95 — Muy irregular / limitante</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="w3-row-padding">
+          <div class="w3-third">
+            <div class="field">
+              <label>Superficie del lote (m²)</label>
+              <input type="number" id="ba_tz_lote" placeholder="166" min="0" oninput="calcularBATerrenos()">
+            </div>
+          </div>
+          <div class="w3-third">
+            <div class="field">
+              <label>Superficie modal del mercado (m²)</label>
+              <input type="number" id="ba_tz_modal" placeholder="150" min="0" oninput="calcularBATerrenos()">
+            </div>
+          </div>
+          <div class="w3-third">
+            <div class="field">
+              <label>Frente del lote (m)</label>
+              <input type="number" id="ba_tz_frente" placeholder="10" min="0" oninput="calcularBATerrenos()">
+            </div>
+          </div>
+        </div>
+        <hr class="div">
+        <div id="ba_terr_chips" class="factor-chips-row"></div>
+        <div class="rbox rbox-green" style="text-align: center;">
+          <div class="calc-lbl">FACTOR TOTAL = Fz × Ff × Fs × Fnf</div>
+          <div class="tc-big" id="ba_terr_total">--</div>
+          <div id="ba_terr_ajuste" style="font-size: .85em; color: #555; margin-top: 4px;"></div>
+        </div>
+        <div class="w3-row-padding" style="margin-top: 14px;">
+          <div class="w3-half">
+            <p style="font-size: .8em; font-weight: bold; color: #555; margin-bottom: 4px;">Fs — Relación Superficie / Modal</p>
+            <table class="ba-ref-table">
+              <thead><tr><th>S / Modal</th><th>Fs</th></tr></thead>
+              <tbody id="ba_ref_sup_body">
+                <tr data-lo="0"    data-hi="0.5" ><td>&lt; 0.50</td><td>1.10</td></tr>
+                <tr data-lo="0.5"  data-hi="0.75"><td>0.50 – 0.75</td><td>1.05</td></tr>
+                <tr data-lo="0.75" data-hi="1.0" ><td>0.75 – 1.00</td><td>1.00</td></tr>
+                <tr data-lo="1.0"  data-hi="1.25"><td>1.00 – 1.25</td><td>0.98</td></tr>
+                <tr data-lo="1.25" data-hi="1.5" ><td>1.25 – 1.50</td><td>0.96</td></tr>
+                <tr data-lo="1.5"  data-hi="2.0" ><td>1.50 – 2.00</td><td>0.93</td></tr>
+                <tr data-lo="2.0"  data-hi="9999"><td>&gt; 2.00</td><td>0.88</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="w3-half">
+            <p style="font-size: .8em; font-weight: bold; color: #555; margin-bottom: 4px;">Fnf — Frente Normalizado</p>
+            <table class="ba-ref-table">
+              <thead><tr><th>Frente (m)</th><th>Fnf</th></tr></thead>
+              <tbody id="ba_ref_frente_body">
+                <tr data-lo="0"  data-hi="6"   ><td>&lt; 6 m</td><td>0.90</td></tr>
+                <tr data-lo="6"  data-hi="8"   ><td>6 – 8 m</td><td>0.93</td></tr>
+                <tr data-lo="8"  data-hi="10"  ><td>8 – 10 m</td><td>0.96</td></tr>
+                <tr data-lo="10" data-hi="15"  ><td>10 – 15 m</td><td>1.00</td></tr>
+                <tr data-lo="15" data-hi="20"  ><td>15 – 20 m</td><td>1.02</td></tr>
+                <tr data-lo="20" data-hi="9999"><td>&gt; 20 m</td><td>0.98</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ AGROPECUARIOS ════ -->
+  <div id="baAgro" class="ba-panel">
+    <div class="card">
+      <div class="card-hdr" style="background: #2e7d32;">
+        <h4>AJUSTE POR FACTORES — AGROPECUARIOS</h4>
+      </div>
+      <div class="card-body">
+        <div class="w3-row-padding">
+          <div class="w3-half">
+            <div class="field">
+              <label>Clase de Aprovechamiento (Fuso)</label>
+              <select id="ba_ag_uso" onchange="calcularBAAgro()">
+                <option value="1.00" selected>1.00 — Riego permanente</option>
+                <option value="0.90">0.90 — Riego eventual</option>
+                <option value="0.75">0.75 — Temporal de buena calidad</option>
+                <option value="0.60">0.60 — Temporal de mala calidad</option>
+                <option value="0.40">0.40 — Agostadero bueno</option>
+                <option value="0.25">0.25 — Agostadero malo / Monte</option>
+              </select>
+            </div>
+          </div>
+          <div class="w3-half">
+            <div class="field">
+              <label>Acceso (Facceso)</label>
+              <select id="ba_ag_acceso" onchange="calcularBAAgro()">
+                <option value="1.00" selected>1.00 — Carretera pavimentada</option>
+                <option value="0.95">0.95 — Camino revestido en buen estado</option>
+                <option value="0.85">0.85 — Camino revestido en mal estado</option>
+                <option value="0.70">0.70 — Vereda / sin acceso</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="w3-row-padding">
+          <div class="w3-half">
+            <div class="field">
+              <label>Disponibilidad de Agua (Fagua)</label>
+              <select id="ba_ag_agua" onchange="calcularBAAgro()">
+                <option value="1.00" selected>1.00 — Abundante permanente</option>
+                <option value="0.90">0.90 — Suficiente permanente</option>
+                <option value="0.80">0.80 — Escasa permanente</option>
+                <option value="0.70">0.70 — Eventual suficiente</option>
+                <option value="0.50">0.50 — Eventual escasa</option>
+                <option value="0.30">0.30 — Sin agua</option>
+              </select>
+            </div>
+          </div>
+          <div class="w3-half">
+            <div class="field">
+              <label>Topografía (Ftopo)</label>
+              <select id="ba_ag_topo" onchange="calcularBAAgro()">
+                <option value="1.00" selected>1.00 — Plano (&lt; 5%)</option>
+                <option value="0.90">0.90 — Suavemente ondulado (5–15%)</option>
+                <option value="0.80">0.80 — Ondulado (15–30%)</option>
+                <option value="0.65">0.65 — Fuertemente ondulado (30–50%)</option>
+                <option value="0.50">0.50 — Escarpado (&gt; 50%)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <hr class="div">
+        <div id="ba_agro_chips" class="factor-chips-row"></div>
+        <div class="rbox rbox-green" style="text-align: center;">
+          <div class="calc-lbl">FACTOR TOTAL = Fuso × Facceso × Fagua × Ftopo</div>
+          <div class="tc-big" id="ba_agro_total">--</div>
+          <div id="ba_agro_ajuste" style="font-size: .85em; color: #555; margin-top: 4px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- Footer -->
+<div style="background: #002147; padding: 14px 24px; text-align: center;">
+  <span style="color: #546e7a; font-size: .8em;">COVAPROSIN — Factores de Ajuste Bravo Armejo</span>
+</div>
+
+<script>
+'use strict';
+
+function setText(id, v) { document.getElementById(id).textContent = v; }
+
+// ── Panel toggle ───────────────────────────────────────
+function abrirBAPanel(evt, panelId) {
+  document.querySelectorAll('.ba-panel').forEach(p => p.classList.remove('ba-active'));
+  document.querySelectorAll('.ba-pill').forEach(p => p.classList.remove('ba-active'));
+  document.getElementById(panelId).classList.add('ba-active');
+  evt.currentTarget.classList.add('ba-active');
+}
+
+// ── Construcciones — Ross-Heidecke ─────────────────────
+const BA_VIDA_UTIL = {
+  'RESIDENCIAL PLUS': 100, 'RESIDENCIAL': 80, 'MEDIO': 70,
+  'ECONÓMICO': 55, 'INTERÉS SOCIAL': 45, 'COMERCIAL': 60,
+  'INDUSTRIAL': 60, 'BODEGA': 50, 'OFICINA': 70
+};
+const BA_ESTADOS = ['ÓPTIMO','MUY BUENO','BUENO','REGULAR','MALO','MUY MALO'];
+const BA_TABLA = {
+  'ÓPTIMO':    [1.00, 0.99, 0.96, 0.91, 0.84, 0.75, 0.64, 0.51, 0.36, 0.19, 0.00],
+  'MUY BUENO': [0.90, 0.89, 0.87, 0.82, 0.76, 0.68, 0.58, 0.46, 0.33, 0.17, 0.00],
+  'BUENO':     [0.75, 0.74, 0.72, 0.68, 0.63, 0.57, 0.48, 0.39, 0.28, 0.14, 0.00],
+  'REGULAR':   [0.50, 0.50, 0.48, 0.46, 0.43, 0.38, 0.33, 0.26, 0.19, 0.10, 0.00],
+  'MALO':      [0.25, 0.25, 0.24, 0.23, 0.21, 0.19, 0.16, 0.13, 0.09, 0.05, 0.00],
+  'MUY MALO':  [0.10, 0.10, 0.10, 0.09, 0.09, 0.08, 0.06, 0.05, 0.04, 0.02, 0.00]
+};
+
+function calcularBACons() {
+  const tipo     = document.getElementById('ba_tipo').value;
+  const edad     = parseFloat(document.getElementById('ba_edad').value) || 0;
+  const estado   = document.getElementById('ba_edocons').value;
+  const vidaUtil = BA_VIDA_UTIL[tipo] || 70;
+  const pct      = Math.min(100, (edad / vidaUtil) * 100);
+  const colLo    = Math.min(10, Math.floor(pct / 10));
+  const colHi    = Math.min(10, Math.ceil(pct / 10));
+  const frac     = (pct / 10) - colLo;
+
+  let factor = null;
+  if (BA_TABLA[estado]) {
+    const fila = BA_TABLA[estado];
+    factor = (colLo === colHi) ? fila[colLo]
+                               : fila[colLo] + (fila[colHi] - fila[colLo]) * frac;
+  }
+
+  setText('ba_vida_util',   vidaUtil + ' años');
+  setText('ba_pct_vuc',     edad > 0 ? pct.toFixed(2) + '%' : '--');
+  setText('ba_factor_cons', factor !== null ? factor.toFixed(4) : '--');
+  setText('ba_depr_cons',   factor !== null ? ((1 - factor) * 100).toFixed(2) + '%' : '--%');
+
+  const pcts = [0,10,20,30,40,50,60,70,80,90,100];
+  let html = '<table class="ba-matrix"><thead><tr>';
+  html += '<th style="text-align:left; padding-left:10px; min-width:110px;">Estado \\ % VUC</th>';
+  pcts.forEach((p, ci) => {
+    const hl = (ci === colLo || ci === colHi) && edad > 0;
+    html += `<th class="${hl ? 'ba-col-hl' : ''}">${p}%</th>`;
+  });
+  html += '</tr></thead><tbody>';
+  BA_ESTADOS.forEach(est => {
+    const isRow = est === estado;
+    html += `<tr class="${isRow ? 'ba-row-hl' : ''}"><td class="ba-estado-lbl">${est}</td>`;
+    BA_TABLA[est].forEach((val, ci) => {
+      const isColHl  = (ci === colLo || ci === colHi) && edad > 0;
+      const isCellHl = isRow && isColHl;
+      const cls = isCellHl ? 'ba-cell-hl' : (isColHl ? 'ba-col-adj' : '');
+      html += `<td class="${cls}">${val.toFixed(2)}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('ba_matrix_container').innerHTML = html;
+}
+
+// ── Terrenos ───────────────────────────────────────────
+function getFsTerreno(rel) {
+  if (rel <= 0)   return 1.00;
+  if (rel < 0.50) return 1.10;
+  if (rel < 0.75) return 1.05;
+  if (rel < 1.00) return 1.00;
+  if (rel < 1.25) return 0.98;
+  if (rel < 1.50) return 0.96;
+  if (rel < 2.00) return 0.93;
+  return 0.88;
+}
+function getFnfTerreno(f) {
+  if (f <= 0)  return 1.00;
+  if (f < 6)   return 0.90;
+  if (f < 8)   return 0.93;
+  if (f < 10)  return 0.96;
+  if (f < 15)  return 1.00;
+  if (f < 20)  return 1.02;
+  return 0.98;
+}
+
+function calcularBATerrenos() {
+  const fz     = parseFloat(document.getElementById('ba_tz_zona').value);
+  const ff     = parseFloat(document.getElementById('ba_tz_forma').value);
+  const lote   = parseFloat(document.getElementById('ba_tz_lote').value) || 0;
+  const modal  = parseFloat(document.getElementById('ba_tz_modal').value) || 0;
+  const frente = parseFloat(document.getElementById('ba_tz_frente').value) || 0;
+  const rel    = modal > 0 ? lote / modal : 0;
+  const fs     = getFsTerreno(rel);
+  const fnf    = frente > 0 ? getFnfTerreno(frente) : 1.00;
+
+  document.querySelectorAll('#ba_ref_sup_body tr').forEach(tr => {
+    const lo = parseFloat(tr.getAttribute('data-lo'));
+    const hi = parseFloat(tr.getAttribute('data-hi'));
+    const on = rel > 0 && rel >= lo && rel < hi;
+    tr.style.background = on ? '#fff3e0' : '';
+    tr.style.fontWeight  = on ? 'bold'    : '';
+    tr.style.color       = on ? '#e65100' : '';
+  });
+  document.querySelectorAll('#ba_ref_frente_body tr').forEach(tr => {
+    const lo = parseFloat(tr.getAttribute('data-lo'));
+    const hi = parseFloat(tr.getAttribute('data-hi'));
+    const on = frente > 0 && frente >= lo && frente < hi;
+    tr.style.background = on ? '#e3f2fd' : '';
+    tr.style.fontWeight  = on ? 'bold'    : '';
+    tr.style.color       = on ? '#1565c0' : '';
+  });
+
+  const total = fz * ff * fs * fnf;
+  const chips = [
+    { lbl:'Fz — Zona',    val: fz  },
+    { lbl:'Ff — Forma',   val: ff  },
+    { lbl:'Fs — Sup.',    val: fs  },
+    { lbl:'Fnf — Frente', val: fnf },
+  ];
+  document.getElementById('ba_terr_chips').innerHTML = chips.map(c =>
+    `<div class="factor-chip"><div class="fc-lbl">${c.lbl}</div><div class="fc-val">${c.val.toFixed(4)}</div></div>`
+  ).join('<span style="font-size:1.4em; color:#aaa; align-self:center;">×</span>');
+  setText('ba_terr_total', total.toFixed(4));
+  const pctAdj = (total - 1) * 100;
+  setText('ba_terr_ajuste', (pctAdj >= 0 ? '+' : '') + pctAdj.toFixed(2) + '% respecto al valor base');
+}
+
+// ── Agropecuarios ──────────────────────────────────────
+function calcularBAAgro() {
+  const fuso    = parseFloat(document.getElementById('ba_ag_uso').value);
+  const facceso = parseFloat(document.getElementById('ba_ag_acceso').value);
+  const fagua   = parseFloat(document.getElementById('ba_ag_agua').value);
+  const ftopo   = parseFloat(document.getElementById('ba_ag_topo').value);
+  const total   = fuso * facceso * fagua * ftopo;
+  const chips   = [
+    { lbl:'Fuso',    val: fuso    },
+    { lbl:'Facceso', val: facceso },
+    { lbl:'Fagua',   val: fagua   },
+    { lbl:'Ftopo',   val: ftopo   },
+  ];
+  document.getElementById('ba_agro_chips').innerHTML = chips.map(c =>
+    `<div class="factor-chip"><div class="fc-lbl">${c.lbl}</div><div class="fc-val">${c.val.toFixed(4)}</div></div>`
+  ).join('<span style="font-size:1.4em; color:#aaa; align-self:center;">×</span>');
+  setText('ba_agro_total', total.toFixed(4));
+  const pctAdj = (total - 1) * 100;
+  setText('ba_agro_ajuste', (pctAdj >= 0 ? '+' : '') + pctAdj.toFixed(2) + '% respecto al valor base');
+}
+
+// ── Init ───────────────────────────────────────────────
+(function init() {
+  calcularBACons();
+  calcularBATerrenos();
+  calcularBAAgro();
+})();
+</script>
+</body>
+</html>
